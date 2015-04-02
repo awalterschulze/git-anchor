@@ -1,0 +1,14 @@
+{
+	"Dir": "src/internal",
+	"Deps": [
+		{
+			"Repo": "/dep.git",
+			"Dir": "src/dep",
+			"SquashedSubtree": true
+		},
+		{
+			"Repo": "/subtree.git",
+			"Dir": "src/subtree"
+		}
+	]
+}

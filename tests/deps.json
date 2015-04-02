@@ -1,0 +1,10 @@
+{
+	"Dir": "src/subtree",
+	"Deps": [
+		{
+			"Repo": "/dep.git",
+			"Dir": "src/dep",
+			"SquashedSubtree": true
+		}
+	]
+}
