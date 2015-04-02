@@ -369,12 +369,16 @@ func checkInsideGit() error {
 func main() {
 	flag.Parse()
 	if *help || *h {
-		fmt.Fprintf(os.Stderr, "git-anchor generates a script from a git repo which retrieves version locked git subtree dependencies\n\n")
 		flag.Usage()
+		fmt.Fprintf(os.Stderr, "\ngit-anchor anchors the versions of your git dependencies.\n")
+		fmt.Fprintf(os.Stderr, "---------------------------------------------------------\n")
+		fmt.Fprintf(os.Stderr, "Given a deps.json file containing your dependency specification\n")
+		fmt.Fprintf(os.Stderr, "git-anchor deduces the correct versions of these repos and\n")
+		fmt.Fprintf(os.Stderr, "generates a build script which clones the anchored versions.\n")
 		fmt.Fprintf(os.Stderr, "\nExamples:\n")
-		fmt.Fprintf(os.Stderr, "\tgit-anchor -list #lists all the git subtrees in the git repo\n")
+		fmt.Fprintf(os.Stderr, "\tgit-anchor -list #lists all the git subtrees in the git repo or clones in the normal folder\n")
 		fmt.Fprintf(os.Stderr, "\tgit-anchor -examplejson #prints out an example dep.json file\n")
-		fmt.Fprintf(os.Stderr, "\tgit-anchor -lang=bash deps.json > deps.sh #generates a bash script from a git repo for all the dependencies in deps.json\n")
+		fmt.Fprintf(os.Stderr, "\tgit-anchor -lang=bash deps.json > deps.sh #generates a bash script for all the dependencies in deps.json\n")
 
 		return
 	}

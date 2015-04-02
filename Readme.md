@@ -116,6 +116,10 @@ git subtree pull --prefix=src/vt/lib \
 In the case where there were any changes the pusher now has to make the commit and push, before running the push script again.
 This forces the update of the deps.sh script.
 
+## No Subtrees, No Problem?
+
+git-anchor also works on a normal folder (which is not a git repo), but contains many git repos.
+
 ## Things that can still go wrong
 
 If you make changes to a dependency that is not pushed upstream the build might break.  This is good thing since it reminds you to push your dependencies as well.
