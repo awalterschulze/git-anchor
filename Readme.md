@@ -127,5 +127,4 @@ If you make changes to a dependency that is not pushed upstream the build might 
 ## Future
 
   - Add support for more languages
-  - Extend beyond git subtree by adding support for a folder containing multiple repos.
 
