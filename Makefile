@@ -25,11 +25,19 @@ build-testdocker:
 
 run-testdockers:
 	docker rm deptestcontainer || true 
-	docker run --env testname="nothing" --env lang=bash --rm=true -i -t --name deptestcontainer deptestimage
-	docker run --env testname="cloned" --env lang=bash --rm=true -i -t --name deptestcontainer deptestimage
-	docker run --env testname="subtreed" --env lang=bash --rm=true -i -t --name deptestcontainer deptestimage
-	docker run --env testname="cloned_old" --env lang=bash --rm=true -i -t --name deptestcontainer deptestimage
-	docker run --env testname="subtreed_old" --env lang=bash --rm=true -i -t --name deptestcontainer deptestimage
-	docker run --env testname="ingit" --env lang=bash --rm=true -i -t --name deptestcontainer deptestimage
-	docker run --env testname="wrongfolder" --env lang=bash --rm=true -i -t --name deptestcontainer deptestimage
-	docker run --env testname="notsquashed" --env lang=bash --rm=true -i -t --name deptestcontainer deptestimage
+	docker run --env repos="subtrees" --env testname="nothing" --env lang=bash --rm=true -i -t --name deptestcontainer deptestimage
+	docker run --env repos="subtrees" --env testname="cloned" --env lang=bash --rm=true -i -t --name deptestcontainer deptestimage
+	docker run --env repos="subtrees" --env testname="subtreed" --env lang=bash --rm=true -i -t --name deptestcontainer deptestimage
+	docker run --env repos="subtrees" --env testname="cloned_old" --env lang=bash --rm=true -i -t --name deptestcontainer deptestimage
+	docker run --env repos="subtrees" --env testname="subtreed_old" --env lang=bash --rm=true -i -t --name deptestcontainer deptestimage
+	docker run --env repos="subtrees" --env testname="ingit" --env lang=bash --rm=true -i -t --name deptestcontainer deptestimage
+	docker run --env repos="subtrees" --env testname="wrongfolder" --env lang=bash --rm=true -i -t --name deptestcontainer deptestimage
+	docker run --env repos="subtrees" --env testname="notsquashed" --env lang=bash --rm=true -i -t --name deptestcontainer deptestimage
+	docker run --env repos="clones" --env testname="nothing" --env lang=bash --rm=true -i -t --name deptestcontainer deptestimage
+	docker run --env repos="clones" --env testname="cloned" --env lang=bash --rm=true -i -t --name deptestcontainer deptestimage
+	docker run --env repos="clones" --env testname="subtreed" --env lang=bash --rm=true -i -t --name deptestcontainer deptestimage
+	docker run --env repos="clones" --env testname="cloned_old" --env lang=bash --rm=true -i -t --name deptestcontainer deptestimage
+	docker run --env repos="clones" --env testname="subtreed_old" --env lang=bash --rm=true -i -t --name deptestcontainer deptestimage
+	docker run --env repos="clones" --env testname="ingit" --env lang=bash --rm=true -i -t --name deptestcontainer deptestimage
+	docker run --env repos="clones" --env testname="wrongfolder" --env lang=bash --rm=true -i -t --name deptestcontainer deptestimage
+	docker run --env repos="clones" --env testname="notsquashed" --env lang=bash --rm=true -i -t --name deptestcontainer deptestimage

@@ -14,11 +14,28 @@
 
 set -x
 
-mkdir -p /tmp/genroot
-git clone $bare_root /tmp/genroot
-(cd /tmp/genroot && go run /tmp/git-anchor.go -lang=$lang /tmp/tests/deps.json > /tmp/deps.sh)
-(cd /tmp/genroot && go run /tmp/git-anchor.go -lang=$lang /tmp/tests/internal.json > /tmp/internal.sh)
-rm -rf /tmp/genroot
+if [ $repos = "subtrees" ]; then
+	mkdir -p $root
+	git clone $bare_root $root
+	(cd $root && go run /tmp/git-anchor.go -lang=$lang /tmp/tests/deps.json > /tmp/deps.sh)
+	(cd $root && go run /tmp/git-anchor.go -lang=$lang /tmp/tests/internal.json > /tmp/internal.sh)
+	rm -rf $root
+elif [ $repos = "clones" ]; then
+	/tmp/tests/cloned.sh
+	(cd $root && go run /tmp/git-anchor.go -lang=$lang /tmp/tests/deps.json > /tmp/deps.sh)
+	if [ ! $? = 0 ]; then
+		exit $?
+	fi
+	(cd $root && go run /tmp/git-anchor.go -lang=$lang /tmp/tests/internal.json > /tmp/internal.sh)
+	if [ ! $? = 0 ]; then
+		exit $?
+	fi
+	rm -rf $root
+else
+	echo "unsupported repos $repos"
+	exit 1
+fi
+
 chmod +x /tmp/deps.sh
 chmod +x /tmp/internal.sh
 

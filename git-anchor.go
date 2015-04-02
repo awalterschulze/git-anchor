@@ -118,12 +118,12 @@ func remoteRev(repo string) (rev string, err error) {
 	return newestCommon(local, remote)
 }
 
-type subtrees struct {
+type repos struct {
 	revs    map[string]string
 	folders []string
 }
 
-func (this *subtrees) String() string {
+func (this *repos) String() string {
 	ss := make([]string, len(this.folders))
 	for i, f := range this.folders {
 		ss[i] = fmt.Sprintf("%s:%s", f, this.revs[f])
@@ -131,16 +131,43 @@ func (this *subtrees) String() string {
 	return strings.Join(ss, "\n")
 }
 
-func (this *subtrees) rev(dir string) string {
+func (this *repos) rev(dir string) string {
 	return this.revs[dir]
 }
 
-func (this *subtrees) has(dir string) bool {
+func (this *repos) has(dir string) bool {
 	_, ok := this.revs[dir]
 	return ok
 }
 
-func newSubtrees() (*subtrees, error) {
+func newClones() (*repos, error) {
+	paths := []string{}
+	filepath.Walk(".", func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			return nil
+		}
+		if !strings.HasSuffix(path, ".git") {
+			return nil
+		}
+		paths = append(paths, path[:len(path)-4])
+		return nil
+	})
+	revs := make(map[string]string)
+	for _, path := range paths {
+		cs := commits(path)
+		line, err := cs.ReadString('\n')
+		if err != nil {
+			return nil, err
+		}
+		revs[path] = line
+	}
+	return &repos{revs, paths}, nil
+}
+
+func newSubtrees() (*repos, error) {
 	cmd := exec.Command("git", "log")
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -185,7 +212,7 @@ func newSubtrees() (*subtrees, error) {
 		return nil, err
 	}
 	sort.Strings(folders)
-	return &subtrees{revs, folders}, nil
+	return &repos{revs, folders}, nil
 }
 
 type Dep struct {
@@ -200,8 +227,14 @@ type Deps struct {
 	Deps []Dep
 }
 
-func newDeps(filename string) (Deps, error) {
-	subs, err := newSubtrees()
+func newDeps(filename string, subtreesInsteadOfClones bool) (Deps, error) {
+	var repos *repos
+	var err error
+	if subtreesInsteadOfClones {
+		repos, err = newSubtrees()
+	} else {
+		repos, err = newClones()
+	}
 	if err != nil {
 		return Deps{}, err
 	}
@@ -218,10 +251,10 @@ func newDeps(filename string) (Deps, error) {
 			continue
 		}
 		if d.SquashedSubtree {
-			if !subs.has(d.Dir) {
+			if !repos.has(d.Dir) {
 				return Deps{}, fmt.Errorf("%s is not a git subtree", d.Dir)
 			}
-			deps.Deps[i].Rev = subs.rev(d.Dir)
+			deps.Deps[i].Rev = repos.rev(d.Dir)
 			continue
 		}
 		rev, err := remoteRev(d.Repo)
@@ -325,7 +358,7 @@ var h = flag.Bool("h", false, "help")
 func checkInsideGit() error {
 	out, err := exec.Command("git", "rev-parse", "--is-inside-work-tree").CombinedOutput()
 	if err != nil {
-		return err
+		return &runError{out, err}
 	}
 	if strings.Contains(string(out), "true") {
 		return nil
@@ -360,16 +393,26 @@ func main() {
 		fmt.Printf("%s\n", string(data))
 		return
 	}
-	if err := checkInsideGit(); err != nil {
-		log.Fatal(err)
+	subtreesInsteadOfClones := false
+	if err := checkInsideGit(); err == nil {
+		subtreesInsteadOfClones = true
 	}
 	if *list {
-		fmt.Printf("list of subtrees in current git repo\n")
-		subs, err := newSubtrees()
-		if err != nil {
-			log.Fatal(err)
+		if subtreesInsteadOfClones {
+			fmt.Printf("list of subtrees in current git repo\n")
+			subs, err := newSubtrees()
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Printf("%s\n", subs)
+		} else {
+			fmt.Printf("list of clones in current folder\n")
+			clones, err := newClones()
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Printf("%s\n", clones)
 		}
-		fmt.Printf("%s\n", subs)
 		return
 	}
 	filename := flag.Arg(0)
@@ -377,7 +420,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "expected json file describing dependencies")
 		os.Exit(1)
 	}
-	deps, err := newDeps(filename)
+	deps, err := newDeps(filename, subtreesInsteadOfClones)
 	if err != nil {
 		log.Fatal(err)
 	}
