@@ -152,7 +152,7 @@ func newClones() (*repos, error) {
 		if !strings.HasSuffix(path, ".git") {
 			return nil
 		}
-		paths = append(paths, path[:len(path)-4])
+		paths = append(paths, path[:len(path)-5])
 		return nil
 	})
 	revs := make(map[string]string)
@@ -257,11 +257,18 @@ func newDeps(filename string, subtreesInsteadOfClones bool) (Deps, error) {
 			deps.Deps[i].Rev = repos.rev(d.Dir)
 			continue
 		}
-		rev, err := remoteRev(d.Repo)
-		if err != nil {
-			return Deps{}, err
+		if subtreesInsteadOfClones {
+			rev, err := remoteRev(d.Repo)
+			if err != nil {
+				return Deps{}, err
+			}
+			deps.Deps[i].Rev = rev
+			continue
 		}
-		deps.Deps[i].Rev = rev
+		if !repos.has(d.Dir) {
+			return Deps{}, fmt.Errorf("%s is not a git repo %#v", d.Dir, repos)
+		}
+		deps.Deps[i].Rev = repos.rev(d.Dir)
 	}
 	return deps, nil
 }
