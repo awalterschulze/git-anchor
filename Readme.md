@@ -3,6 +3,8 @@
 git-anchor anchors the versions of your git dependencies.
 Given a deps.json file containing your dependency specification git-anchor deduces the correct versions of these repos and generates a build script which clones the anchored versions.
 
+![demo.gif](https://github.com/awalterschulze/git-anchor/demo.gif "Demo")
+
 ## Problem
 
 Given a big repo with many git subtrees, you would like to have a build 
